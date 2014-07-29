@@ -1,6 +1,7 @@
 
 on 'test' => sub {
     requires 'Test::More' => "0";
+    requires 'Test::Deep' => "0.084";
 };
 
 on 'configure' => sub {

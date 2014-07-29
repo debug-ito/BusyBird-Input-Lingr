@@ -11,13 +11,75 @@ __END__
 
 =head1 NAME
 
-BusyBird::Input::Lingr - abstract
+BusyBird::Input::Lingr - import Lingr chat texts into BusyBird
 
 =head1 SYNOPSIS
 
+    use BusyBird;
+    use WebService::Lingr::Archives;
+    use BusyBird::Input::Lingr;
+    
+    my $downloader = WebService::Lingr::Archives->new(
+        user => 'your lingr username',
+        passworkd => 'your lingr password',
+    );
+    my $input = BusyBird::Input::Lingr->new;
+    
+    my @raw_messages = $downloader->get_archives("perl_jp");
+    my @busybird_statuses = $input->convert(@raw_messages);
+    
+    timeline("perl_jp_chat")->add(\@busybird_statuses);
+
 =head1 DESCRIPTION
 
+L<BusyBird::Input::Lingr> converts text message objects obtained from Lingr (L<http://lingr.com/>) API into L<BusyBird> status objects.
+
+Note that this module does not download messages from Lingr.
+For that purpose, use L<WebService::Lingr::Archives> or L<AnyEvent::Lingr>.
+
+=head1 CLASS METHODS
+
+=head2 $input = BusyBird::Input::Lingr->new(%args)
+
+The constructor.
+
+Fields in C<%args> are:
+
+=over
+
+=item C<api_base> => STR (optional, default: "http://lingr.com/api")
+
+Lingr API base URL. This field is used to create permalinks.
+
+=back
+
+=head1 OBJECT METHODS
+
+=head2 @busybird_statuses = $input->convert(@lingr_messages)
+
+Convert Lingr message objects into L<BusyBird> status objects.
+
+If called in scalar context, it returns the first status object.
+
+If there is an invalid message in C<@lingr_messages>, this method croaks.
+
 =head1 SEE ALSO
+
+=over
+
+=item *
+
+L<BusyBird>
+
+=item *
+
+L<WebService::Lingr::Archives>
+
+=item *
+
+L<AnyEvent::Lingr>
+
+=back
 
 =head1 REPOSITORY
 
