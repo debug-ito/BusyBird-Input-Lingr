@@ -17,7 +17,7 @@ sub message {
         public_session_id => 'hogehoge',
         icon_url => 'http://hoge.com/avatar.png',
         type => 'user',
-        spearker_id => $speaker_id,
+        speaker_id => $speaker_id,
         nickname => $nickname,
         text => "ID: $id",
         local_id => undef,
@@ -52,7 +52,7 @@ sub message {
         { label => "empty", input => [], exp => [] },
         { label => "single", input => [ message(143, '2014-07-24T22:12:00Z') ],
           exp => [sh(
-              id => "$exp_base/room/sample_room/achives/2014/07/24#message-143",
+              id => "$exp_base/room/sample_room/archives/2014/07/24#message-143",
               created_at => "Thu Jul 24 22:12:00 +0000 2014",
               user => sh(
                   screen_name => "toshioito",
@@ -60,12 +60,12 @@ sub message {
                   profile_image_url => 'http://hoge.com/avatar.png',
               ),
               text => "ID: 143",
-              busybird => sh( status_permalink => "$exp_base/room/sample_room/achives/2014/07/24#message-143" )
+              busybird => sh( status_permalink => "$exp_base/room/sample_room/archives/2014/07/24#message-143" )
           )]},
         { label => "two", input => [message(200, '2014-07-07T10:00:03Z'), message(300, '2014-07-07T10:11:34Z', 't-ito', 'TITO')],
           exp => [
               sh(
-                  id => "$exp_base/room/sample_room/achives/2014/07/07#message-200",
+                  id => "$exp_base/room/sample_room/archives/2014/07/07#message-200",
                   created_at => "Mon Jul 07 10:00:03 +0000 2014",
                   user => sh(
                       screen_name => "toshioito",
@@ -73,10 +73,10 @@ sub message {
                       profile_image_url => 'http://hoge.com/avatar.png',
                   ),
                   text => "ID: 200",
-                  busybird => sh( status_permalink => "$exp_base/room/sample_room/achives/2014/07/07#message-200" )
+                  busybird => sh( status_permalink => "$exp_base/room/sample_room/archives/2014/07/07#message-200" )
               ),
               sh(
-                  id => "$exp_base/room/sample_room/achives/2014/07/07#message-300",
+                  id => "$exp_base/room/sample_room/archives/2014/07/07#message-300",
                   created_at => "Mon Jul 07 10:11:34 +0000 2014",
                   user => sh(
                       screen_name => "t-ito",
@@ -84,17 +84,17 @@ sub message {
                       profile_image_url => 'http://hoge.com/avatar.png',
                   ),
                   text => "ID: 300",
-                  busybird => sh( status_permalink => "$exp_base/room/sample_room/achives/2014/07/07#message-300" )
+                  busybird => sh( status_permalink => "$exp_base/room/sample_room/archives/2014/07/07#message-300" )
               ),
           ]}
     );
     foreach my $case (@testcases) {
         my $label = $case->{label};
         my @got_list = $input->convert(@{$case->{input}});
-        cmp_deeply \@got, @case->{exp}, "$label: list result OK";
+        cmp_deeply \@got_list, $case->{exp}, "$label: list result OK";
 
         my $got_scalar = $input->convert(@{$case->{input}});
-        is_deeply $got_scalar, $got[0], "$label: scalar result OK";
+        is_deeply $got_scalar, $got_list[0], "$label: scalar result OK";
     }
 }
 

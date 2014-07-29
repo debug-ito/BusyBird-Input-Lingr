@@ -1,8 +1,56 @@
 package BusyBird::Input::Lingr;
+use 5.010;
 use strict;
 use warnings;
+use Carp;
+use DateTime::Format::ISO8601;
+use BusyBird::DateTime::Format;
 
 our $VERSION = "0.01";
+
+my $PARSER = DateTime::Format::ISO8601->new;
+
+sub new {
+    my ($class, %args) = @_;
+    my $api_base = $args{api_base} // "http://lingr.com/api";
+    $api_base =~ qr{^(https?://[^/]+)};
+    my $url_base = $1;
+    my $self = bless {
+        url_base => $url_base
+    }, $class;
+    return $self;
+}
+
+sub convert {
+    my ($self, @messages) = @_;
+    my @statuses = map { $self->_convert_one($_) } @messages;
+    return wantarray ? @statuses : $statuses[0];
+}
+
+sub _convert_one {
+    my ($self, $message) = @_;
+    croak "message must be a HASH-ref" if !defined($message) || ref($message) ne "HASH";
+    croak "timestamp field was empty" if !defined($message->{timestamp});
+    croak "id field was empty" if !defined($message->{id});
+    my $time = $PARSER->parse_datetime($message->{timestamp});
+    croak "Invalid timestamp format" if !defined($time);
+    my $permalink = sprintf('%s/room/%s/archives/%04d/%02d/%02d#message-%s',
+                            $self->{url_base}, $message->{room},
+                            $time->year, $time->month, $time->day, $message->{id});
+    return {
+        id => $permalink,
+        created_at => BusyBird::DateTime::Format->format_datetime($time),
+        user => {
+            profile_image_url => $message->{icon_url},
+            screen_name => $message->{speaker_id},
+            name => $message->{nickname},
+        },
+        text => $message->{text},
+        busybird => {
+            status_permalink => $permalink
+        }
+    };
+}
 
 1;
 __END__
